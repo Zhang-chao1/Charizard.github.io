@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片展示</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('素材图片/背景2.png') center center fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #262626;
+            padding-top: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .decoration.gif-1 {
+            top: 10%;
+            left: 5%;
+            width: 100px;
+            height: 100px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .decoration.gif-2 {
+            top: 20%;
+            right: 5%;
+            width: 120px;
+            height: 120px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .decoration.gif-3 {
+            bottom: 15%;
+            left: 8%;
+            width: 90px;
+            height: 90px;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .decoration.gif-4 {
+            top: 40%;
+            right: 10%;
+            width: 110px;
+            height: 110px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .decoration.gif-5 {
+            bottom: 10%;
+            right: 15%;
+            width: 130px;
+            height: 130px;
+            animation: float 4.5s ease-in-out infinite;
+        }
+
+        .decoration.gif-6 {
+            top: 60%;
+            left: 12%;
+            width: 95px;
+            height: 95px;
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        .decoration.gif-7 {
+            bottom: 30%;
+            right: 20%;
+            width: 85px;
+            height: 85px;
+            animation: float 5.5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .gallery-item {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            perspective: 1000px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .gallery-item-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .gallery-item:hover .gallery-item-inner {
+            transform: rotateY(180deg);
+        }
+
+        .gallery-item-front,
+        .gallery-item-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .gallery-item-back {
+            transform: rotateY(180deg);
+            background: #fff;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+            /* 轮播图样式 */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-button.prev {
+            left: 20px;
+        }
+
+        .carousel-button.next {
+            right: 20px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* 图片预览样式 */
+        .preview-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .preview-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .preview-container.active {
+            display: flex;
+        }
+
+        .preview-container.active .preview-image {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <img src="素材图片/1.webp" class="decoration gif-1" alt="装饰1">
+    <img src="素材图片/2.webp" class="decoration gif-2" alt="装饰2">
+    <img src="素材图片/3.webp" class="decoration gif-3" alt="装饰3">
+    <img src="素材图片/4.jpg" class="decoration gif-4" alt="装饰4">
+    <img src="素材图片/5.webp" class="decoration gif-5" alt="装饰5">
+    <img src="素材图片/6.gif" class="decoration gif-6" alt="装饰6">
+    <img src="素材图片/7.gif" class="decoration gif-7" alt="装饰7">
+    <div class="carousel-container">
+        <div class="carousel-wrapper">
+            <div class="carousel-slide"></div>
+        </div>
+        <button class="carousel-button prev">&lt;</button>
+        <button class="carousel-button next">&gt;</button>
+        <div class="carousel-dots"></div>
+    </div>
+    <div class="gallery-container">
+        <!-- 图片内容将通过JavaScript动态添加 -->
+    </div>
+    <div class="preview-container">
+        <img class="preview-image" alt="预览图片">
+    </div>
+
+    <script>
+        // 图片加载函数
+        function loadGallery() {
+            const container = document.querySelector('.gallery-container');
+            const images = [
+                './展示图片/1.jpg',
+                './展示图片/2.jpg',
+                './展示图片/3.jpg',
+                './展示图片/4.jpg',
+                './展示图片/5.jpg',
+                './展示图片/6.png',
+                './展示图片/7.jpg',
+                './展示图片/8.jpg',
+                './展示图片/9.jpg',
+                './展示图片/10.jpg',
+                './展示图片/11.jpg',
+                './展示图片/12.jpg',
+                './展示图片/13.jpg',
+                './展示图片/14.jpg',
+                './展示图片/15.jpg',
+                './展示图片/16.jpg',
+                './展示图片/17.jpg',
+                './展示图片/18.jpg',
+                './展示图片/19.jpg',
+                './展示图片/20.jpg',
+                './展示图片/21.jpg',
+                './展示图片/22.jpg',
+                './展示图片/23.jpg',
+                './展示图片/24.jpg',
+                './展示图片/25.jpg',
+                './展示图片/26.jpg'
+            ];
+
+            images.forEach((src, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                
+                const inner = document.createElement('div');
+                inner.className = 'gallery-item-inner';
+                
+                const front = document.createElement('div');
+                front.className = 'gallery-item-front';
+                const back = document.createElement('div');
+                back.className = 'gallery-item-back';
+                
+                const frontImg = document.createElement('img');
+                frontImg.src = src;
+                frontImg.alt = '正面图片';
+                
+                const backImg = document.createElement('img');
+                // 使用下一张图片作为背面图片，如果是最后一张则使用第一张
+                backImg.src = index === images.length - 1 ? images[0] : images[index + 1];
+                backImg.alt = '背面图片';
+                
+                front.appendChild(frontImg);
+                back.appendChild(backImg);
+                inner.appendChild(front);
+                inner.appendChild(back);
+                item.appendChild(inner);
+                container.appendChild(item);
+            });
+
+            // 初始化轮播图
+            function initCarousel() {
+                const carouselSlide = document.querySelector('.carousel-slide');
+                const prevButton = document.querySelector('.carousel-button.prev');
+                const nextButton = document.querySelector('.carousel-button.next');
+                const dotsContainer = document.querySelector('.carousel-dots');
+                let currentIndex = 0;
+                let autoplayInterval;
+
+                // 选择前5张图片作为轮播图内容
+                const carouselImages = images.slice(0, 5);
+
+                // 创建轮播图片
+                carouselImages.forEach(imagePath => {
+                    const img = document.createElement('img');
+                    img.src = imagePath;
+                    carouselSlide.appendChild(img);
+
+                    // 创建导航点
+                    const dot = document.createElement('div');
+                    dot.className = 'carousel-dot';
+                    dotsContainer.appendChild(dot);
+                });
+
+                // 设置初始状态
+                updateCarousel();
+
+                // 自动播放
+                startAutoplay();
+
+                // 事件监听
+                prevButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+                    updateCarousel();
+                    resetAutoplay();
+                });
+
+                nextButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % carouselImages.length;
+                    updateCarousel();
+                    resetAutoplay();
+                });
+
+                // 点击导航点切换图片
+                document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentIndex = index;
+                        updateCarousel();
+                        resetAutoplay();
+                    });
+                });
+
+                // 鼠标悬停时暂停自动播放
+                document.querySelector('.carousel-container').addEventListener('mouseenter', () => {
+                    clearInterval(autoplayInterval);
+                });
+
+                document.querySelector('.carousel-container').addEventListener('mouseleave', () => {
+                    startAutoplay();
+                });
+
+                function updateCarousel() {
+                    carouselSlide.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentIndex);
+                    });
+                }
+
+                function startAutoplay() {
+                    autoplayInterval = setInterval(() => {
+                        currentIndex = (currentIndex + 1) % carouselImages.length;
+                        updateCarousel();
+                    }, 3000);
+                }
+
+                function resetAutoplay() {
+                    clearInterval(autoplayInterval);
+                    startAutoplay();
+                }
+            }
+
+            // 调用轮播图初始化
+            initCarousel();
+        }
+
+
+
+        // 添加图片点击预览功能
+        function setupImagePreview() {
+            const previewContainer = document.querySelector('.preview-container');
+            const previewImage = document.querySelector('.preview-image');
+
+            document.querySelectorAll('.gallery-item img').forEach(img => {
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    previewImage.src = img.src;
+                    previewContainer.classList.add('active');
+                });
+            });
+
+            previewContainer.addEventListener('click', () => {
+                previewContainer.classList.remove('active');
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            loadGallery();
+            initCarousel();
+            setupImagePreview();
+        });
+    </script>
+</body>
+</html>
