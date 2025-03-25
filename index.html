@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人网站</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .easter-egg {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            z-index: 1000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .easter-egg.position-1 {
+            top: 20%;
+            left: 30%;
+            animation: fadeRotateIn 0.5s forwards;
+        }
+
+        .easter-egg.position-2 {
+            top: 20%;
+            right: 30%;
+            animation: bounceIn 0.5s forwards;
+        }
+
+        .easter-egg.position-3 {
+            bottom: 20%;
+            left: 30%;
+            animation: slideUpFade 0.5s forwards;
+        }
+
+        .easter-egg.position-4 {
+            bottom: 20%;
+            right: 30%;
+            animation: flipIn 0.5s forwards;
+        }
+
+        .easter-egg.position-5 {
+            top: 50%;
+            left: 20%;
+            animation: swingIn 0.5s forwards;
+        }
+
+        @keyframes fadeRotateIn {
+            from {
+                opacity: 0;
+                transform: rotate(-180deg) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes flipIn {
+            from {
+                opacity: 0;
+                transform: perspective(400px) rotateY(90deg) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: perspective(400px) rotateY(0) scale(1);
+            }
+        }
+
+        @keyframes swingIn {
+            0% {
+                opacity: 0;
+                transform: rotate(-200deg) scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        .easter-egg.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.05); /* 降低遮罩层的不透明度，使背景更明亮 */
+            z-index: -2;
+        }
+
+        .background-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .background-decoration::before,
+        .background-decoration::after,
+        .background-decoration-2::before,
+        .background-decoration-2::after {
+            content: '';
+            position: absolute;
+            background: url('素材图片/背景装饰.png') center center no-repeat;
+            background-size: contain;
+            opacity: 0.6;
+            width: 40%;
+            height: 40%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: url('素材图片/背景.png') center center fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            filter: brightness(1.2) saturate(1.2);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        body::after {
+            display: none;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .avatar-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #ffffff;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .hat {
+            position: absolute;
+            width: 80px;
+            height: auto;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+        }
+
+        .avatar-container:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .name {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            color: #ff69b4;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            }
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .nav-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff69b4;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.5em;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+
+        .nav-item:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mouse-trail {
+            position: fixed;
+            pointer-events: none;
+            width: 15px;
+            height: 15px;
+            z-index: 9999;
+            opacity: 0.6;
+            animation: fadeOut 1.5s linear forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starCanvas"></canvas>
+    <div class="background-decoration"></div>
+    <div class="background-decoration-2"></div>
+    <div class="avatar-container">
+        <img src="素材图片/帽子.jpg" alt="Hat" class="hat">
+        <img src="title_picture/个人.jpg" alt="Avatar" class="avatar">
+    </div>
+    <nav class="nav-container">
+        <a href="gallery.html" class="nav-item" title="图片展示"><i class="fas fa-images"></i></a>
+        <a href="photo_wall.html" class="nav-item" title="照片墙"><i class="fas fa-camera"></i></a>
+        <a href="mobile_gallery.html" class="nav-item" title="移动端"><i class="fas fa-mobile-alt"></i></a>
+    </nav>
+    <canvas id="starfield"></canvas>
+    <script>
+        // 帽子动画相关代码
+        const hatElement = document.querySelector('.hat');
+        const avatarContainer = document.querySelector('.avatar-container');
+        let clickCount = 0;
+        let clickTimer = null;
+
+        // 彩蛋图片数组
+        const easterEggImages = [
+            '素材图片/1.webp',
+            '素材图片/2.webp',
+            '素材图片/3.webp',
+            '素材图片/4.jpg',
+            '素材图片/5.webp'
+        ];
+
+        let currentEasterEgg = null;
+
+        avatarContainer.addEventListener('click', () => {
+            clickCount++;
+            
+            if (clickTimer) {
+                clearTimeout(clickTimer);
+            }
+
+            clickTimer = setTimeout(() => {
+                if (clickCount >= 3) {
+                    // 帽子跳跃动画
+                    hatElement.style.transform = 'translateX(-50%) translateY(-30px)';
+                    setTimeout(() => {
+                        hatElement.style.transform = 'translateX(-50%) translateY(0)';
+                    }, 500);
+
+                    // 显示随机彩蛋图片
+                    if (currentEasterEgg) {
+                        currentEasterEgg.remove();
+                    }
+
+                    // 随机选择一个位置类名
+                    const positions = ['position-1', 'position-2', 'position-3', 'position-4', 'position-5'];
+                    const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+                    const randomImage = easterEggImages[Math.floor(Math.random() * easterEggImages.length)];
+                    
+                    currentEasterEgg = document.createElement('img');
+                    currentEasterEgg.src = randomImage;
+                    currentEasterEgg.className = `easter-egg ${randomPosition}`;
+                    document.body.appendChild(currentEasterEgg);
+
+                    // 3秒后隐藏彩蛋图片
+                    setTimeout(() => {
+                        if (currentEasterEgg) {
+                            currentEasterEgg.classList.remove('show');
+                            setTimeout(() => {
+                                currentEasterEgg.remove();
+                                currentEasterEgg = null;
+                            }, 500);
+                        }
+                    }, 3000);
+                }
+                clickCount = 0;
+            }, 500);
+        });
+
+        // 现有的星空背景代码
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 设置canvas尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 星星类
+        class Star {
+            constructor() {
+                this.starImage = new Image();
+                this.starImage.src = '素材图片/star.png';
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 30 + 15; /* 增加星星的大小范围 */
+                this.speed = Math.random() * 0.8; /* 增加移动速度 */
+                this.brightness = Math.random() * 0.5 + 0.5; /* 提高最小亮度 */
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.03; /* 增加旋转速度 */
+                this.scale = Math.random() * 0.7 + 0.8; /* 增加最小缩放比例 */
+                this.scaleSpeed = (Math.random() - 0.5) * 0.015;
+            }
+
+            update() {
+                this.y += this.speed;
+                this.rotation += this.rotationSpeed;
+                this.scale += this.scaleSpeed;
+
+                // 控制缩放范围
+                if (this.scale < 0.5 || this.scale > 1) {
+                    this.scaleSpeed = -this.scaleSpeed;
+                }
+
+                this.brightness = Math.sin(Date.now() * 0.001 + this.x) * 0.3 + 0.7;
+                if (this.y > canvas.height) this.reset();
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.scale(this.scale, this.scale);
+                ctx.globalAlpha = this.brightness;
+                ctx.drawImage(this.starImage, -this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        // 创建星星
+        const stars = Array(100).fill().map(() => new Star());
+
+        // 动画循环
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // 添加鼠标轨迹效果
+        let lastTrailTime = 0;
+        const trailInterval = 100; // 控制轨迹生成的时间间隔（毫秒）
+
+        document.addEventListener('mousemove', function(e) {
+            const currentTime = Date.now();
+            if (currentTime - lastTrailTime < trailInterval) return;
+
+            lastTrailTime = currentTime;
+
+            const trail = document.createElement('img');
+            trail.src = '素材图片/轨迹.png';
+            trail.className = 'mouse-trail';
+            trail.style.left = (e.clientX - 7.5) + 'px';
+            trail.style.top = (e.clientY - 7.5) + 'px';
+            document.body.appendChild(trail);
+
+            // 在动画结束后移除轨迹元素
+            trail.addEventListener('animationend', function() {
+                trail.remove();
+            });
+        });
+    </script>
+</body>
+</html>
