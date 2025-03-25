@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态照片墙</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: url('素材图片/背景2.png') center center fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: url('素材图片/star.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0.8;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .mouse-trail {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            animation: fadeOut 1s linear forwards;
+            z-index: 2;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+            border-radius: 50%;
+            animation: shoot 3s linear infinite;
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0) rotate(45deg) scale(0);
+                opacity: 0;
+            }
+            1% {
+                opacity: 1;
+            }
+            10% {
+                transform: translate(100px, 100px) rotate(45deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(300px, 300px) rotate(45deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        .mouse-trail {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            animation: fadeOut 1s linear forwards;
+            z-index: 2;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+
+        .photo-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 15px;
+            position: relative;
+            z-index: 3;
+        }
+
+        @keyframes slideFromLeft {
+            0% { transform: translateX(-100vw) scale(0.3); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes slideFromRight {
+            0% { transform: translateX(100vw) scale(0.3); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes slideFromTop {
+            0% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes slideFromBottom {
+            0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes rotateIn {
+            0% { transform: rotate(720deg) scale(0); opacity: 0; }
+            100% { transform: rotate(0) scale(1); opacity: 1; }
+        }
+
+        .photo-item {
+            position: relative;
+            opacity: 0;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .photo-item.animation-1 {
+            animation: slideFromLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .photo-item.animation-2 {
+            animation: slideFromRight 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .photo-item.animation-3 {
+            animation: slideFromTop 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .photo-item.animation-4 {
+            animation: slideFromBottom 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .photo-item.animation-5 {
+            animation: rotateIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .preview-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .preview-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .preview-container.active {
+            display: flex;
+        }
+
+        .preview-container.active .preview-image {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-button.prev {
+            left: 20px;
+        }
+
+        .carousel-button.next {
+            right: 20px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="mouse-trail"></div>
+    <div class="photo-wall"></div>
+    <div class="carousel-container">
+        <div class="carousel-wrapper">
+            <div class="carousel-slide"></div>
+        </div>
+        <button class="carousel-button prev">&lt;</button>
+        <button class="carousel-button next">&gt;</button>
+        <div class="carousel-dots"></div>
+    </div>
+    <div class="preview-container">
+        <img class="preview-image" alt="预览图片">
+    </div>
+
+    <script>
+        // 图片文件列表
+        const imageFiles = [
+            './展示图片/1.jpg',
+            './展示图片/2.png',
+            './展示图片/3.jpg',
+            './展示图片/4.jpg',
+            './展示图片/5.jpg',
+            './展示图片/6.jpg',
+            './展示图片/7.jpg',
+            './展示图片/8.jpg',
+            './展示图片/9.jpg',
+            './展示图片/10.jpg',
+            './展示图片/11.jpg',
+            './展示图片/12.jpg',
+            './展示图片/13.jpg',
+            './展示图片/14.jpg',
+            './展示图片/15.jpg',
+            './展示图片/16.jpg',
+            './展示图片/17.jpg',
+            './展示图片/18.jpg',
+            './展示图片/19.jpg',
+            './展示图片/20.jpg',
+            './展示图片/21.jpg',
+            './展示图片/22.jpg',
+            './展示图片/23.jpg',
+            './展示图片/24.jpg',
+            './展示图片/25.jpg',
+            './展示图片/26.jpg',
+            './展示图片/27.jpg',
+            './展示图片/28.jpg',
+            './展示图片/29.jpg',
+            './展示图片/30.jpg',
+            './展示图片/31.jpg',
+            './展示图片/32.jpg'
+        ];
+
+        // 创建鼠标轨迹
+        function createMouseTrail() {
+            let lastTrailTime = 0;
+            const trailInterval = 100; // 控制轨迹生成的时间间隔（毫秒）
+    
+            document.addEventListener('mousemove', function(e) {
+                const currentTime = Date.now();
+                if (currentTime - lastTrailTime < trailInterval) return;
+    
+                lastTrailTime = currentTime;
+    
+                const trail = document.createElement('img');
+                trail.src = '素材图片/轨迹.png';
+                trail.className = 'mouse-trail';
+                trail.style.left = (e.clientX - 7.5) + 'px';
+                trail.style.top = (e.clientY - 7.5) + 'px';
+                document.body.appendChild(trail);
+    
+                // 在动画结束后移除轨迹元素
+                trail.addEventListener('animationend', function() {
+                    trail.remove();
+                });
+            });
+        }
+
+        // 创建照片墙
+        function createPhotoWall() {
+            const photoWall = document.querySelector('.photo-wall');
+            const previewContainer = document.querySelector('.preview-container');
+            const previewImage = document.querySelector('.preview-image');
+
+            imageFiles.forEach((imagePath, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                photoItem.style.width = `${Math.random() * 100 + 150}px`;
+                photoItem.style.height = `${Math.random() * 100 + 150}px`;
+
+                const img = document.createElement('img');
+                img.src = imagePath;
+                photoItem.appendChild(img);
+
+                // 点击图片预览
+                photoItem.addEventListener('click', () => {
+                    previewImage.src = imagePath;
+                    previewContainer.classList.add('active');
+                });
+
+                photoWall.appendChild(photoItem);
+
+                // 随机选择动画类型并延迟显示
+                const animationTypes = ['animation-1', 'animation-2', 'animation-3', 'animation-4', 'animation-5'];
+                const randomAnimation = animationTypes[Math.floor(Math.random() * animationTypes.length)];
+                
+                setTimeout(() => {
+                    photoItem.classList.add(randomAnimation);
+                }, index * 500);
+            });
+
+            // 点击预览容器关闭预览
+            previewContainer.addEventListener('click', () => {
+                previewContainer.classList.remove('active');
+            });
+        }
+
+        // 初始化轮播图
+        function initCarousel() {
+            const carouselSlide = document.querySelector('.carousel-slide');
+            const prevButton = document.querySelector('.carousel-button.prev');
+            const nextButton = document.querySelector('.carousel-button.next');
+            const dotsContainer = document.querySelector('.carousel-dots');
+            let currentIndex = 0;
+            let autoplayInterval;
+
+            // 选择前5张图片作为轮播图内容
+            const carouselImages = imageFiles.slice(0, 5);
+
+            // 创建轮播图片
+            carouselImages.forEach(imagePath => {
+                const img = document.createElement('img');
+                img.src = imagePath;
+                carouselSlide.appendChild(img);
+
+                // 创建导航点
+                const dot = document.createElement('div');
+                dot.className = 'carousel-dot';
+                dotsContainer.appendChild(dot);
+            });
+
+            // 设置初始状态
+            updateCarousel();
+
+            // 自动播放
+            startAutoplay();
+
+            // 事件监听
+            prevButton.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+                updateCarousel();
+                resetAutoplay();
+            });
+
+            nextButton.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % carouselImages.length;
+                updateCarousel();
+                resetAutoplay();
+            });
+
+            // 点击导航点切换图片
+            document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentIndex = index;
+                    updateCarousel();
+                    resetAutoplay();
+                });
+            });
+
+            // 鼠标悬停时暂停自动播放
+            document.querySelector('.carousel-container').addEventListener('mouseenter', () => {
+                clearInterval(autoplayInterval);
+            });
+
+            document.querySelector('.carousel-container').addEventListener('mouseleave', () => {
+                startAutoplay();
+            });
+
+            function updateCarousel() {
+                carouselSlide.style.transform = `translateX(-${currentIndex * 100}%)`;
+                document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentIndex);
+                });
+            }
+
+            function startAutoplay() {
+                autoplayInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % carouselImages.length;
+                    updateCarousel();
+                }, 3000);
+            }
+
+            function resetAutoplay() {
+                clearInterval(autoplayInterval);
+                startAutoplay();
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            createMouseTrail();
+            initCarousel();
+            createPhotoWall();
+        });
+    </script>
+</body>
+</html>
